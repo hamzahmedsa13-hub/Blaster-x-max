@@ -1,0 +1,23 @@
+name: Build APK
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Buildozer
+        uses: ArtemSBulgakov/buildozer-action@v1
+        id: buildozer
+        with:
+          buildozer_version: master
+          command: |
+            buildozer init
+            sed -i 's/title = My Application/title = Blastar VIP/g' buildozer.spec
+            sed -i 's/requirements = python3,kivy/requirements = python3,pygame/g' buildozer.spec
+            sed -i 's/orientation = landscape/orientation = portrait/g' buildozer.spec
+            buildozer -v android debug
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Blastar-Game-APK
+          path: ${{ steps.buildozer.outputs.filename }}
